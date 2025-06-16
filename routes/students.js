@@ -6,13 +6,6 @@ const router = express.Router();
 
 /**
  * @swagger
- * tags:
- *   name: Student
- *   description: Student authentication
- */
-
-/**
- * @swagger
  * /api/students:
  *   post:
  *     summary: Create a new student
@@ -31,7 +24,7 @@ router.post("", auth(["liberian"]), async (req, res) => {
   const { full_name, id_card, student_class } = req.body;
 
   try {
-    await db.execute("INSERT INTO students (full_name, id_card, class) VALUES (?, ?, ?)", [
+    await db.execute("INSERT INTO students (full_name, id_card, class, created_by) VALUES (?, ?, ?, ?)", [
       full_name,
       id_card,
       student_class
@@ -90,7 +83,7 @@ router.post("", auth(["liberian"]), async (req, res) => {
  *                 $ref: '#/components/schemas/Student'
  */
 router.get("", auth(["liberian"]), async (req, res) => {
-  const [students] = await db.execute("SELECT id, full_name, id_card, class FROM students");
+  const [students] = await db.execute("SELECT id, full_name, id_card, class, created_by FROM students");
   res.json(students);
 });
 
