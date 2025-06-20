@@ -27,7 +27,8 @@ router.post("", auth(["liberian"]), async (req, res) => {
     await db.execute("INSERT INTO students (full_name, id_card, class, created_by) VALUES (?, ?, ?, ?)", [
       full_name,
       id_card,
-      student_class
+      student_class,
+      req.user.id
     ]);
     res.status(201).json({ message: "Student created" });
   } catch (err) {
