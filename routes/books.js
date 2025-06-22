@@ -3,13 +3,14 @@ const db = require("../db/connection");
 const auth = require("../middleware/auth");
 const router = express.Router();
 
-
 /**
  * @swagger
  * /api/books:
  *   post:
  *     summary: Create a new book
  *     tags: [Books]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -21,12 +22,13 @@ const router = express.Router();
  *         description: Book created successfully
  */
 router.post("", auth(["liberian"]), async (req, res) => {
-  const { title, description, author_id } = req.body;
+  const { title, description, author_id, quantity, category_id } = req.body;
 
   try {
-    await db.execute("INSERT INTO books (title, description, author_id, created_by) VALUES (?, ?, ?, ?)", [
-      title, description, author_id, req.user.id
-    ]);
+    await db.execute(
+      "INSERT INTO books (title, description, author_id, quantity, category_id, created_by) VALUES (?, ?, ?, ?, ?, ?)",
+      [title, description, author_id, quantity, category_id, req.user.id]
+    );
     res.status(201).json({ message: "Book created" });
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -43,7 +45,8 @@ router.post("", auth(["liberian"]), async (req, res) => {
  *         - title
  *         - description
  *         - author_id
- *         - created_by
+ *         - quantity
+ *         - category_id
  *       properties:
  *         id:
  *           type: integer
@@ -57,15 +60,24 @@ router.post("", auth(["liberian"]), async (req, res) => {
  *         author_id:
  *           type: integer
  *           description: ID of the author
+ *         category_id:
+ *           type: integer
+ *           description: ID of the category
+ *         quantity:
+ *           type: integer
+ *           description: Available number of books
  *         created_by:
- *          type: integer
- *          description: ID of the user who created the book(liberian)
+ *           type: integer
+ *           description: ID of the user who created the book
  *       example:
- *          title: "Introduction to Programming"
- *          description: "A comprehensive guide to programming."
- *          author_id: 1
- *          created_by: 1
+ *         title: "Data Structures"
+ *         description: "Intro to data structures"
+ *         author_id: 1
+ *         category_id: 3
+ *         quantity: 5
+ *         created_by: 1
  */
+
 
 /**
  * @swagger
@@ -136,12 +148,16 @@ router.get("", auth(["liberian"]), async (req, res) => {
 
   const query = `
     SELECT
-      books.id, books.title, books.description, books.created_by,
-      authors.full_name AS author_name
+      books.id, books.title, books.description, books.quantity,
+      authors.full_name AS author_name,
+      categories.name AS category,
+      books.created_by
     FROM books
     LEFT JOIN authors ON books.author_id = authors.id
+    LEFT JOIN categories ON books.category_id = categories.id
     LIMIT ${limit} OFFSET ${offset}
   `;
+
 
   try {
     const [books] = await db.execute(query);
@@ -184,11 +200,15 @@ router.get("/:id", auth(["liberian"]), async (req, res) => {
 
   try {
     const [book] = await db.execute(
-      `SELECT books.id, books.title, books.description, books.created_by,
-              authors.full_name AS author_name
-       FROM books
-       LEFT JOIN authors ON books.author_id = authors.id
-       WHERE books.id = ?`, [bookId]
+      `SELECT
+        books.id, books.title, books.description, books.quantity,
+        authors.full_name AS author_name,
+        categories.name AS category,
+        books.created_by
+      FROM books
+      LEFT JOIN authors ON books.author_id = authors.id
+      LEFT JOIN categories ON books.category_id = categories.id
+      WHERE books.id = ?`, [bookId]
     );
 
     if (book.length === 0) {
@@ -228,12 +248,12 @@ router.get("/:id", auth(["liberian"]), async (req, res) => {
  */
 router.put("/:id", auth(["liberian"]), async (req, res) => {
   const bookId = req.params.id;
-  const { title, description, author_id } = req.body;
+  const { title, description, author_id, quantity, category_id } = req.body;
 
   try {
     const [result] = await db.execute(
-      `UPDATE books SET title = ?, description = ?, author_id = ? WHERE id = ?`,
-      [title, description, author_id, bookId]
+      `UPDATE books SET title = ?, description = ?, author_id = ?, quantity = ?, category_id = ? WHERE id = ?`,
+      [title, description, author_id, quantity, category_id, bookId]
     );
 
     if (result.affectedRows === 0) {
