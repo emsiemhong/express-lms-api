@@ -15,6 +15,8 @@ app.use("/api/students", require("./routes/students"));
 app.use("/api/books", require("./routes/books"));
 app.use("/api/borrows", require("./routes/borrows"));
 app.use("/api/dashboard", require("./routes/dashboard"));
+app.use("/api/categories", require("./routes/categories"));
+app.use("/api/authors", require("./routes/authors"));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const PORT = process.env.PORT || 3000;
