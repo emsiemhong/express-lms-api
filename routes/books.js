@@ -174,6 +174,57 @@ router.get("", auth(["liberian"]), async (req, res) => {
   }
 });
 
+
+/**
+ * @swagger
+ * /api/books/search:
+ *   get:
+ *     summary: Search available books by title
+ *     tags: [Books]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Book title to search
+ *     responses:
+ *       200:
+ *         description: List of matching available books
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   title:
+ *                     type: string
+ *                   quantity:
+ *                     type: integer
+ */
+router.get("/search", auth(["liberian"]), async (req, res) => {
+  const { query } = req.query;
+  if (!query) return res.status(400).json({ message: "Missing query" });
+
+  try {
+    const [rows] = await db.execute(
+      `SELECT id, title, quantity
+       FROM books
+       WHERE quantity > 0 AND title LIKE '%${query}%'
+       LIMIT 10`
+    );
+
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 /**
  * @swagger
  * /api/books/{id}:

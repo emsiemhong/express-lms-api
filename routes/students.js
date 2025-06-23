@@ -156,6 +156,57 @@ router.get("", auth(["liberian"]), async (req, res) => {
 });
 
 
+
+/**
+ * @swagger
+ * /api/students/search:
+ *   get:
+ *     summary: Search students by name or ID card
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Name or ID card to search
+ *     responses:
+ *       200:
+ *         description: List of matching students
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   id_card:
+ *                     type: string
+ *                   full_name:
+ *                     type: string
+ */
+router.get("/search", auth(["liberian"]), async (req, res) => {
+  const { query } = req.query;
+  if (!query) return res.status(400).json({ message: "Missing query" });
+
+  try {
+    const [rows] = await db.execute(
+      `SELECT id, id_card, full_name
+       FROM students
+       WHERE id_card LIKE ? OR full_name LIKE ?
+       LIMIT 10`,
+      [`%${query}%`, `%${query}%`]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 /**
  * @swagger
  * /api/students/{id}:
