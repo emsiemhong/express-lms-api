@@ -53,7 +53,8 @@ router.get("/", auth(["liberian"]), async (req, res) => {
       returned
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(err);
+    res.status(500).json({ error: "Something went wrong" });
   }
 });
 

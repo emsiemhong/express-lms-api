@@ -32,7 +32,7 @@ router.post("", auth(["liberian"]), async (req, res) => {
     ]);
     res.status(201).json({ message: "Student created" });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: "Something went wrong" });
   }
 });
 
@@ -122,7 +122,7 @@ router.post("", auth(["liberian"]), async (req, res) => {
  *                       created_by:
  *                         type: integer
  */
-router.get("", auth(["liberian"]), async (req, res) => {
+router.get("", async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const offset = (page - 1) * limit;

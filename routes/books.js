@@ -31,7 +31,7 @@ router.post("", auth(["liberian"]), async (req, res) => {
     );
     res.status(201).json({ message: "Book created" });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: "Something went wrong" });
   }
 });
 
@@ -170,7 +170,7 @@ router.get("", auth(["liberian"]), async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch books" });
+    res.status(500).json({ error: "Something went wrong" });
   }
 });
 
@@ -221,7 +221,7 @@ router.get("/search", auth(["liberian"]), async (req, res) => {
 
     res.json(rows);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Something went wrong" });
   }
 });
 
@@ -269,7 +269,7 @@ router.get("/:id", auth(["liberian"]), async (req, res) => {
     res.json(book[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch book" });
+    res.status(500).json({ error: "Something went wrong" });
   }
 }
 );
@@ -314,7 +314,7 @@ router.put("/:id", auth(["liberian"]), async (req, res) => {
     res.json({ message: "Book updated successfully" });
   } catch (err) {
     console.error(err);
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: "Something went wrong" });
   }
 }
 );

@@ -33,12 +33,12 @@ const auth = require("../middleware/auth");
  *                   full_name:
  *                     type: string
  */
-router.get("/", auth(["liberian"]), async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const [authors] = await db.execute("SELECT id, full_name FROM authors");
     res.json(authors);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Something went wrong" });
   }
 });
 
